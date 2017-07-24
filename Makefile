@@ -24,7 +24,7 @@ BINEXT ?=
 SOLIBNAME = libhttp_parser
 SOMAJOR = 2
 SOMINOR = 7
-SOREV   = 1
+SOREV   = 2
 ifeq (darwin,$(PLATFORM))
 SOEXT ?= dylib
 SONAME ?= $(SOLIBNAME).$(SOMAJOR).$(SOMINOR).$(SOEXT)
