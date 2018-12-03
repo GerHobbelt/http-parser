@@ -1785,6 +1785,7 @@ reexecute:
          * we have to simulate it by handling a change in errno below.
          */
         if (settings->on_headers_complete) {
+          parser->nread = nread;
           switch (settings->on_headers_complete(parser)) {
             case 0:
               break;
