@@ -23,7 +23,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/time.h>
+//#include <sys/time.h>
+
+#include "plf_nanotimer_c_api.h"
+
 
 /* 8 gb */
 static const int64_t kBytes = 8LL << 30;
@@ -65,16 +68,14 @@ static http_parser_settings settings = {
   .on_body = on_data
 };
 
-int bench(int iter_count, int silent) {
+static int bench(int iter_count, int silent) {
   struct http_parser parser;
   int i;
-  int err;
-  struct timeval start;
-  struct timeval end;
+  nanotimer_data_t timer = { 0 };
+
 
   if (!silent) {
-    err = gettimeofday(&start, NULL);
-    assert(err == 0);
+	  nanotimer_start(&timer);
   }
 
   fprintf(stderr, "req_len=%d\n", (int) data_len);
@@ -91,13 +92,9 @@ int bench(int iter_count, int silent) {
     double bw;
     double total;
 
-    err = gettimeofday(&end, NULL);
-    assert(err == 0);
+	elapsed = nanotimer_get_elapsed_sec(&timer);
 
     fprintf(stdout, "Benchmark result:\n");
-
-    elapsed = (double) (end.tv_sec - start.tv_sec) +
-              (end.tv_usec - start.tv_usec) * 1e-6f;
 
     total = (double) iter_count * data_len;
     bw = (double) total / elapsed;
@@ -114,7 +111,12 @@ int bench(int iter_count, int silent) {
   return 0;
 }
 
-int main(int argc, char** argv) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main   httpp_bench_main
+#endif
+
+int main(int argc, const char** argv) {
   int64_t iterations;
 
   iterations = kBytes / (int64_t) data_len;

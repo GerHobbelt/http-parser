@@ -92,7 +92,7 @@ static int num_messages;
 static http_parser_settings *current_pause_parser;
 
 /* * R E Q U E S T S * */
-const struct message requests[] =
+static const struct message requests[] =
 #define CURL_GET 0
 { {.name= "curl get"
   ,.type= HTTP_REQUEST
@@ -426,7 +426,7 @@ const struct message requests[] =
   ,.request_url= "/with_\"stupid\"_quotes?foo=\"bar\""
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= { }
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -477,7 +477,7 @@ const struct message requests[] =
   ,.request_url= "/test.cgi?foo=bar?baz"
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= {}
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -499,7 +499,7 @@ const struct message requests[] =
   ,.request_url= "/test"
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= { }
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -582,7 +582,7 @@ const struct message requests[] =
   ,.request_url= "/test"
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= {}
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -602,7 +602,7 @@ const struct message requests[] =
   ,.request_url= "/"
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= {}
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -688,7 +688,7 @@ const struct message requests[] =
   ,.host= "hypnotoad.org"
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= { }
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -710,7 +710,7 @@ const struct message requests[] =
   ,.port= 1234
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= { }
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -732,7 +732,7 @@ const struct message requests[] =
   ,.port= 1234
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= { }
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -957,7 +957,7 @@ const struct message requests[] =
   ,.port= 1234
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= { }
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -1328,7 +1328,7 @@ const struct message requests[] =
 };
 
 /* * R E S P O N S E S * */
-const struct message responses[] =
+static const struct message responses[] =
 #define GOOGLE_301 0
 { {.name= "google 301"
   ,.type= HTTP_RESPONSE
@@ -1436,7 +1436,7 @@ const struct message responses[] =
   ,.response_status= "Not Found"
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= {}
+  ,.headers= { 0 }
   ,.body_size= 0
   ,.body= ""
   }
@@ -1453,7 +1453,7 @@ const struct message responses[] =
   ,.content_length= -1
   ,.response_status= ""
   ,.num_headers= 0
-  ,.headers= {}
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -1649,7 +1649,7 @@ const struct message responses[] =
     }
   ,.body= ""
   ,.num_chunks_complete= 1
-  ,.chunk_lengths= {}
+  ,.chunk_lengths= { 0 }
   }
 
 #define NON_ASCII_IN_STATUS_LINE 10
@@ -1692,7 +1692,7 @@ const struct message responses[] =
   ,.content_length= -1
   ,.num_headers= 0
   ,.headers=
-    {}
+    { 0 }
   ,.body= ""
   }
 
@@ -1776,7 +1776,7 @@ const struct message responses[] =
   ,.response_status= "OK"
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers={}
+  ,.headers={ 0 }
   ,.body_size= 0
   ,.body= ""
   }
@@ -1794,7 +1794,7 @@ const struct message responses[] =
   ,.response_status= "No content"
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers={}
+  ,.headers={ 0 }
   ,.body_size= 0
   ,.body= ""
   }
@@ -1934,7 +1934,7 @@ const struct message responses[] =
   ,.response_status= ""
   ,.content_length= -1
   ,.num_headers= 0
-  ,.headers= {}
+  ,.headers= { 0 }
   ,.body= ""
   }
 
@@ -2156,10 +2156,12 @@ const struct message responses[] =
   }
 };
 
+#if !defined(_MSC_VER)
+
 /* strnlen() is a POSIX.2008 addition. Can't rely on it being available so
  * define it ourselves.
  */
-size_t
+static size_t
 strnlen(const char *s, size_t maxlen)
 {
   const char *p;
@@ -2171,7 +2173,9 @@ strnlen(const char *s, size_t maxlen)
   return p - s;
 }
 
-size_t
+#endif
+
+static size_t
 strlncat(char *dst, size_t len, const char *src, size_t n)
 {
   size_t slen;
@@ -2193,7 +2197,7 @@ strlncat(char *dst, size_t len, const char *src, size_t n)
   return slen + dlen;
 }
 
-size_t
+static size_t
 strlncpy(char *dst, size_t len, const char *src, size_t n)
 {
   size_t slen;
@@ -2211,7 +2215,7 @@ strlncpy(char *dst, size_t len, const char *src, size_t n)
   return slen;
 }
 
-int
+static int
 request_url_cb (http_parser *p, const char *buf, size_t len)
 {
   assert(p == &parser);
@@ -2222,7 +2226,7 @@ request_url_cb (http_parser *p, const char *buf, size_t len)
   return 0;
 }
 
-int
+static int
 header_field_cb (http_parser *p, const char *buf, size_t len)
 {
   assert(p == &parser);
@@ -2241,7 +2245,7 @@ header_field_cb (http_parser *p, const char *buf, size_t len)
   return 0;
 }
 
-int
+static int
 header_value_cb (http_parser *p, const char *buf, size_t len)
 {
   assert(p == &parser);
@@ -2257,7 +2261,7 @@ header_value_cb (http_parser *p, const char *buf, size_t len)
   return 0;
 }
 
-void
+static void
 check_body_is_final (const http_parser *p)
 {
   if (messages[num_messages].body_is_final) {
@@ -2270,7 +2274,7 @@ check_body_is_final (const http_parser *p)
   messages[num_messages].body_is_final = http_body_is_final(p);
 }
 
-int
+static int
 body_cb (http_parser *p, const char *buf, size_t len)
 {
   assert(p == &parser);
@@ -2284,7 +2288,7 @@ body_cb (http_parser *p, const char *buf, size_t len)
   return 0;
 }
 
-int
+static int
 count_body_cb (http_parser *p, const char *buf, size_t len)
 {
   assert(p == &parser);
@@ -2294,7 +2298,7 @@ count_body_cb (http_parser *p, const char *buf, size_t len)
   return 0;
 }
 
-int
+static int
 message_begin_cb (http_parser *p)
 {
   assert(p == &parser);
@@ -2303,7 +2307,7 @@ message_begin_cb (http_parser *p)
   return 0;
 }
 
-int
+static int
 headers_complete_cb (http_parser *p)
 {
   assert(p == &parser);
@@ -2317,7 +2321,7 @@ headers_complete_cb (http_parser *p)
   return 0;
 }
 
-int
+static int
 message_complete_cb (http_parser *p)
 {
   assert(p == &parser);
@@ -2350,7 +2354,7 @@ message_complete_cb (http_parser *p)
   return 0;
 }
 
-int
+static int
 response_status_cb (http_parser *p, const char *buf, size_t len)
 {
   assert(p == &parser);
@@ -2364,7 +2368,7 @@ response_status_cb (http_parser *p, const char *buf, size_t len)
   return 0;
 }
 
-int
+static int
 chunk_header_cb (http_parser *p)
 {
   assert(p == &parser);
@@ -2377,7 +2381,7 @@ chunk_header_cb (http_parser *p)
   return 0;
 }
 
-int
+static int
 chunk_complete_cb (http_parser *p)
 {
   assert(p == &parser);
@@ -2395,7 +2399,7 @@ chunk_complete_cb (http_parser *p)
 
 /* These dontcall_* callbacks exist so that we can verify that when we're
  * paused, no additional callbacks are invoked */
-int
+static int
 dontcall_message_begin_cb (http_parser *p)
 {
   if (p) { } // gcc
@@ -2403,7 +2407,7 @@ dontcall_message_begin_cb (http_parser *p)
   abort();
 }
 
-int
+static int
 dontcall_header_field_cb (http_parser *p, const char *buf, size_t len)
 {
   if (p || buf || len) { } // gcc
@@ -2411,7 +2415,7 @@ dontcall_header_field_cb (http_parser *p, const char *buf, size_t len)
   abort();
 }
 
-int
+static int
 dontcall_header_value_cb (http_parser *p, const char *buf, size_t len)
 {
   if (p || buf || len) { } // gcc
@@ -2419,7 +2423,7 @@ dontcall_header_value_cb (http_parser *p, const char *buf, size_t len)
   abort();
 }
 
-int
+static int
 dontcall_request_url_cb (http_parser *p, const char *buf, size_t len)
 {
   if (p || buf || len) { } // gcc
@@ -2427,7 +2431,7 @@ dontcall_request_url_cb (http_parser *p, const char *buf, size_t len)
   abort();
 }
 
-int
+static int
 dontcall_body_cb (http_parser *p, const char *buf, size_t len)
 {
   if (p || buf || len) { } // gcc
@@ -2435,7 +2439,7 @@ dontcall_body_cb (http_parser *p, const char *buf, size_t len)
   abort();
 }
 
-int
+static int
 dontcall_headers_complete_cb (http_parser *p)
 {
   if (p) { } // gcc
@@ -2444,7 +2448,7 @@ dontcall_headers_complete_cb (http_parser *p)
   abort();
 }
 
-int
+static int
 dontcall_message_complete_cb (http_parser *p)
 {
   if (p) { } // gcc
@@ -2453,7 +2457,7 @@ dontcall_message_complete_cb (http_parser *p)
   abort();
 }
 
-int
+static int
 dontcall_response_status_cb (http_parser *p, const char *buf, size_t len)
 {
   if (p || buf || len) { } // gcc
@@ -2461,7 +2465,7 @@ dontcall_response_status_cb (http_parser *p, const char *buf, size_t len)
   abort();
 }
 
-int
+static int
 dontcall_chunk_header_cb (http_parser *p)
 {
   if (p) { } // gcc
@@ -2469,7 +2473,7 @@ dontcall_chunk_header_cb (http_parser *p)
   exit(1);
 }
 
-int
+static int
 dontcall_chunk_complete_cb (http_parser *p)
 {
   if (p) { } // gcc
@@ -2495,7 +2499,7 @@ static http_parser_settings settings_dontcall =
  * callback that tracks content. Before returning, we overwrite the parser
  * settings to point to the _dontcall variety so that we can verify that
  * the pause actually did, you know, pause. */
-int
+static int
 pause_message_begin_cb (http_parser *p)
 {
   http_parser_pause(p, 1);
@@ -2503,7 +2507,7 @@ pause_message_begin_cb (http_parser *p)
   return message_begin_cb(p);
 }
 
-int
+static int
 pause_header_field_cb (http_parser *p, const char *buf, size_t len)
 {
   http_parser_pause(p, 1);
@@ -2511,7 +2515,7 @@ pause_header_field_cb (http_parser *p, const char *buf, size_t len)
   return header_field_cb(p, buf, len);
 }
 
-int
+static int
 pause_header_value_cb (http_parser *p, const char *buf, size_t len)
 {
   http_parser_pause(p, 1);
@@ -2519,7 +2523,7 @@ pause_header_value_cb (http_parser *p, const char *buf, size_t len)
   return header_value_cb(p, buf, len);
 }
 
-int
+static int
 pause_request_url_cb (http_parser *p, const char *buf, size_t len)
 {
   http_parser_pause(p, 1);
@@ -2527,7 +2531,7 @@ pause_request_url_cb (http_parser *p, const char *buf, size_t len)
   return request_url_cb(p, buf, len);
 }
 
-int
+static int
 pause_body_cb (http_parser *p, const char *buf, size_t len)
 {
   http_parser_pause(p, 1);
@@ -2535,7 +2539,7 @@ pause_body_cb (http_parser *p, const char *buf, size_t len)
   return body_cb(p, buf, len);
 }
 
-int
+static int
 pause_headers_complete_cb (http_parser *p)
 {
   http_parser_pause(p, 1);
@@ -2543,7 +2547,7 @@ pause_headers_complete_cb (http_parser *p)
   return headers_complete_cb(p);
 }
 
-int
+static int
 pause_message_complete_cb (http_parser *p)
 {
   http_parser_pause(p, 1);
@@ -2551,7 +2555,7 @@ pause_message_complete_cb (http_parser *p)
   return message_complete_cb(p);
 }
 
-int
+static int
 pause_response_status_cb (http_parser *p, const char *buf, size_t len)
 {
   http_parser_pause(p, 1);
@@ -2559,7 +2563,7 @@ pause_response_status_cb (http_parser *p, const char *buf, size_t len)
   return response_status_cb(p, buf, len);
 }
 
-int
+static int
 pause_chunk_header_cb (http_parser *p)
 {
   http_parser_pause(p, 1);
@@ -2567,7 +2571,7 @@ pause_chunk_header_cb (http_parser *p)
   return chunk_header_cb(p);
 }
 
-int
+static int
 pause_chunk_complete_cb (http_parser *p)
 {
   http_parser_pause(p, 1);
@@ -2575,14 +2579,14 @@ pause_chunk_complete_cb (http_parser *p)
   return chunk_complete_cb(p);
 }
 
-int
+static int
 connect_headers_complete_cb (http_parser *p)
 {
   headers_complete_cb(p);
   return 1;
 }
 
-int
+static int
 connect_message_complete_cb (http_parser *p)
 {
   messages[num_messages].should_keep_alive = http_should_keep_alive(&parser);
@@ -2654,7 +2658,7 @@ static http_parser_settings settings_null =
   ,.on_chunk_complete = 0
   };
 
-void
+static void
 parser_init (enum http_parser_type type)
 {
   num_messages = 0;
@@ -2662,7 +2666,7 @@ parser_init (enum http_parser_type type)
   memset(&messages, 0, sizeof messages);
 }
 
-size_t parse (const char *buf, size_t len)
+static size_t parse (const char *buf, size_t len)
 {
   size_t nparsed;
   currently_parsing_eof = (len == 0);
@@ -2670,7 +2674,7 @@ size_t parse (const char *buf, size_t len)
   return nparsed;
 }
 
-size_t parse_count_body (const char *buf, size_t len)
+static size_t parse_count_body (const char *buf, size_t len)
 {
   size_t nparsed;
   currently_parsing_eof = (len == 0);
@@ -2678,7 +2682,7 @@ size_t parse_count_body (const char *buf, size_t len)
   return nparsed;
 }
 
-size_t parse_pause (const char *buf, size_t len)
+static size_t parse_pause (const char *buf, size_t len)
 {
   size_t nparsed;
   http_parser_settings s = settings_pause;
@@ -2689,7 +2693,7 @@ size_t parse_pause (const char *buf, size_t len)
   return nparsed;
 }
 
-size_t parse_connect (const char *buf, size_t len)
+static size_t parse_connect (const char *buf, size_t len)
 {
   size_t nparsed;
   currently_parsing_eof = (len == 0);
@@ -2752,7 +2756,7 @@ do {                                                                 \
   check_str_eq(expected, #prop, expected->prop, ubuf);               \
 } while(0)
 
-int
+static int
 message_eq (int index, int connect, const struct message *expected)
 {
   int i;
@@ -2850,7 +2854,7 @@ message_eq (int index, int connect, const struct message *expected)
  * parser should successfully parse, taking into account that upgraded
  * messages prevent all subsequent messages from being parsed.
  */
-size_t
+static size_t
 count_parsed_messages(const size_t nmsgs, ...) {
   size_t i;
   va_list ap;
@@ -2873,7 +2877,7 @@ count_parsed_messages(const size_t nmsgs, ...) {
 /* Given a sequence of bytes and the number of these that we were able to
  * parse, verify that upgrade bodies are correct.
  */
-void
+static void
 upgrade_message_fix(char *body, const size_t nread, const size_t nmsgs, ...) {
   va_list ap;
   size_t i;
@@ -2951,7 +2955,7 @@ print_error (const char *raw, size_t error_location)
   fprintf(stderr, "^\n\nerror location: %u\n", (unsigned int)error_location);
 }
 
-void
+static void
 test_preserve_data (void)
 {
   char my_data[] = "application-specific data";
@@ -2972,7 +2976,7 @@ struct url_test {
   int rv;
 };
 
-const struct url_test url_tests[] =
+static const struct url_test url_tests[] =
 { {.name="proxy request"
   ,.url="http://hostname/"
   ,.is_connect=0
@@ -3525,7 +3529,7 @@ const struct url_test url_tests[] =
 #endif
 };
 
-void
+static void
 dump_url (const char *url, const struct http_parser_url *u)
 {
   unsigned int i;
@@ -3546,7 +3550,7 @@ dump_url (const char *url, const struct http_parser_url *u)
   }
 }
 
-void
+static void
 test_parse_url (void)
 {
   struct http_parser_url u;
@@ -3592,14 +3596,14 @@ test_parse_url (void)
   }
 }
 
-void
+static void
 test_method_str (void)
 {
   assert(0 == strcmp("GET", http_method_str(HTTP_GET)));
   assert(0 == strcmp("<unknown>", http_method_str(1337)));
 }
 
-void
+static void
 test_status_str (void)
 {
   assert(0 == strcmp("OK", http_status_str(HTTP_STATUS_OK)));
@@ -3607,7 +3611,7 @@ test_status_str (void)
   assert(0 == strcmp("<unknown>", http_status_str(1337)));
 }
 
-void
+static void
 test_message (const struct message *message)
 {
   size_t raw_len = strlen(message->raw);
@@ -3677,7 +3681,7 @@ test_message (const struct message *message)
   }
 }
 
-void
+static void
 test_message_count_body (const struct message *message)
 {
   parser_init(message->type);
@@ -3711,7 +3715,7 @@ test_message_count_body (const struct message *message)
   if(!message_eq(0, 0, message)) abort();
 }
 
-void
+static void
 test_simple_type (const char *buf,
                   enum http_errno err_expected,
                   enum http_parser_type type)
@@ -3738,13 +3742,13 @@ test_simple_type (const char *buf,
   }
 }
 
-void
+static void
 test_simple (const char *buf, enum http_errno err_expected)
 {
   test_simple_type(buf, err_expected, HTTP_REQUEST);
 }
 
-void
+static void
 test_invalid_header_content (int req, const char* str)
 {
   http_parser parser;
@@ -3771,14 +3775,14 @@ test_invalid_header_content (int req, const char* str)
   abort();
 }
 
-void
+static void
 test_invalid_header_field_content_error (int req)
 {
   test_invalid_header_content(req, "Foo: F\01ailure");
   test_invalid_header_content(req, "Foo: B\02ar");
 }
 
-void
+static void
 test_invalid_header_field (int req, const char* str)
 {
   http_parser parser;
@@ -3805,14 +3809,14 @@ test_invalid_header_field (int req, const char* str)
   abort();
 }
 
-void
+static void
 test_invalid_header_field_token_error (int req)
 {
   test_invalid_header_field(req, "Fo@: Failure");
   test_invalid_header_field(req, "Foo\01\test: Bar");
 }
 
-void
+static void
 test_double_content_length_error (int req)
 {
   http_parser parser;
@@ -3839,7 +3843,7 @@ test_double_content_length_error (int req)
   abort();
 }
 
-void
+static void
 test_chunked_content_length_error (int req)
 {
   http_parser parser;
@@ -3866,7 +3870,7 @@ test_chunked_content_length_error (int req)
   abort();
 }
 
-void
+static void
 test_header_cr_no_lf_error (int req)
 {
   http_parser parser;
@@ -3893,7 +3897,7 @@ test_header_cr_no_lf_error (int req)
   abort();
 }
 
-void
+static void
 test_no_overflow_parse_url (void)
 {
   int rv;
@@ -3917,7 +3921,7 @@ test_no_overflow_parse_url (void)
   }
 }
 
-void
+static void
 test_header_overflow_error (int req)
 {
   http_parser parser;
@@ -3946,7 +3950,7 @@ test_header_overflow_error (int req)
 }
 
 
-void
+static void
 test_header_nread_value ()
 {
   http_parser parser;
@@ -3974,7 +3978,7 @@ test_content_length_overflow (const char *buf, size_t buflen, int expect_ok)
     assert(HTTP_PARSER_ERRNO(&parser) == HPE_INVALID_CONTENT_LENGTH);
 }
 
-void
+static void
 test_header_content_length_overflow_error (void)
 {
 #define X(size)                                                               \
@@ -3990,7 +3994,7 @@ test_header_content_length_overflow_error (void)
   test_content_length_overflow(c, sizeof(c) - 1, 0); /* expect failure */
 }
 
-void
+static void
 test_chunk_content_length_overflow_error (void)
 {
 #define X(size)                                                               \
@@ -4008,7 +4012,7 @@ test_chunk_content_length_overflow_error (void)
   test_content_length_overflow(c, sizeof(c) - 1, 0); /* expect failure */
 }
 
-void
+static void
 test_no_overflow_long_body (int req, size_t length)
 {
   http_parser parser;
@@ -4041,16 +4045,18 @@ test_no_overflow_long_body (int req, size_t length)
   abort();
 }
 
-void
+static void
 test_multiple3 (const struct message *r1, const struct message *r2, const struct message *r3)
 {
   int message_count = count_parsed_messages(3, r1, r2, r3);
 
-  char total[ strlen(r1->raw)
+  const size_t slen =
+	          strlen(r1->raw)
             + strlen(r2->raw)
             + strlen(r3->raw)
             + 1
-            ];
+            ;
+  char* total = _alloca(slen + 1);
   total[0] = '\0';
 
   strcat(total, r1->raw);
@@ -4101,7 +4107,7 @@ test:
  * parser can handle getting the content in any chunks that
  * might come from the socket
  */
-void
+static void
 test_scan (const struct message *r1, const struct message *r2, const struct message *r3)
 {
   char total[80*1024] = "\0";
@@ -4226,7 +4232,7 @@ test:
 
 // user required to free the result
 // string terminated by \0
-char *
+static char *
 create_large_chunked_message (int body_size_in_kb, const char* headers)
 {
   int i;
@@ -4257,7 +4263,7 @@ create_large_chunked_message (int body_size_in_kb, const char* headers)
 
 /* Verify that we can pause parsing at any of the bytes in the
  * message and still get the result that we're expecting. */
-void
+static void
 test_message_pause (const struct message *msg)
 {
   char *buf = (char*) msg->raw;
@@ -4309,7 +4315,7 @@ test:
 }
 
 /* Verify that body and next message won't be parsed in responses to CONNECT */
-void
+static void
 test_message_connect (const struct message *msg)
 {
   char *buf = (char*) msg->raw;
@@ -4326,6 +4332,11 @@ test_message_connect (const struct message *msg)
 
   if(!message_eq(0, 1, msg)) abort();
 }
+
+
+#if defined(BUILD_MONOLITHIC)
+#define main   httpp_test_main
+#endif
 
 int
 main (void)

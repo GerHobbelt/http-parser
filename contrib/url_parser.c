@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void
+static void
 dump_url (const char *url, const struct http_parser_url *u)
 {
   unsigned int i;
@@ -23,7 +23,12 @@ dump_url (const char *url, const struct http_parser_url *u)
   }
 }
 
-int main(int argc, char ** argv) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main   httpp_url_parser_main
+#endif
+
+int main(int argc, const char ** argv) {
   struct http_parser_url u;
   int len, connect, result;
 

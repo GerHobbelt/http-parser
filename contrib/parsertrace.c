@@ -26,67 +26,72 @@
 #include <stdlib.h>
 #include <string.h>
 
-int on_message_begin(http_parser* _) {
+static int on_message_begin(http_parser* _) {
   (void)_;
   printf("\n***MESSAGE BEGIN***\n\n");
   return 0;
 }
 
-int on_headers_complete(http_parser* _) {
+static int on_headers_complete(http_parser* _) {
   (void)_;
   printf("\n***HEADERS COMPLETE***\n\n");
   return 0;
 }
 
-int on_message_complete(http_parser* _) {
+static int on_message_complete(http_parser* _) {
   (void)_;
   printf("\n***MESSAGE COMPLETE***\n\n");
   return 0;
 }
 
-int on_url(http_parser* _, const char* at, size_t length) {
+static int on_url(http_parser* _, const char* at, size_t length) {
   (void)_;
   printf("Url: %.*s\n", (int)length, at);
   return 0;
 }
 
-int on_header_field(http_parser* _, const char* at, size_t length) {
+static int on_header_field(http_parser* _, const char* at, size_t length) {
   (void)_;
   printf("Header field: %.*s\n", (int)length, at);
   return 0;
 }
 
-int on_header_value(http_parser* _, const char* at, size_t length) {
+static int on_header_value(http_parser* _, const char* at, size_t length) {
   (void)_;
   printf("Header value: %.*s\n", (int)length, at);
   return 0;
 }
 
-int on_body(http_parser* _, const char* at, size_t length) {
+static int on_body(http_parser* _, const char* at, size_t length) {
   (void)_;
   printf("Body: %.*s\n", (int)length, at);
   return 0;
 }
 
-void usage(const char* name) {
+static int usage(const char* name) {
   fprintf(stderr,
           "Usage: %s $type $filename\n"
           "  type: -x, where x is one of {r,b,q}\n"
           "  parses file as a Response, reQuest, or Both\n",
           name);
-  exit(EXIT_FAILURE);
+  return EXIT_FAILURE;
 }
 
-int main(int argc, char* argv[]) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main   httpp_parsertrace_main
+#endif
+
+int main(int argc, const char** argv) {
   enum http_parser_type file_type;
 
   if (argc != 3) {
-    usage(argv[0]);
+    return usage(argv[0]);
   }
 
-  char* type = argv[1];
+  const char* type = argv[1];
   if (type[0] != '-') {
-    usage(argv[0]);
+    return usage(argv[0]);
   }
 
   switch (type[1]) {
@@ -101,10 +106,10 @@ int main(int argc, char* argv[]) {
       file_type = HTTP_BOTH;
       break;
     default:
-      usage(argv[0]);
+      return usage(argv[0]);
   }
 
-  char* filename = argv[2];
+  const char* filename = argv[2];
   FILE* file = fopen(filename, "r");
   if (file == NULL) {
     perror("fopen");
